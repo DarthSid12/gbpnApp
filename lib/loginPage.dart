@@ -2,7 +2,9 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:pusher_beams/pusher_beams.dart';
@@ -32,6 +34,7 @@ class _LoginPageState extends State<LoginPage> {
     prefs = await SharedPreferences.getInstance();
     token = prefs.getString("token");
     if (token != null) {
+      // print(token);
       Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -107,11 +110,24 @@ class _LoginPageState extends State<LoginPage> {
                   child: ElevatedButton(
                     child: const Text('Login'),
                     onPressed: () async {
+                      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+                      String deviceName = '';
+                      if (Platform.isAndroid) {
+                        AndroidDeviceInfo androidDeviceInfo =
+                            await deviceInfo.androidInfo;
+                        deviceName =
+                            "${emailController.text.split('@')[0]}'s ${androidDeviceInfo.brand}";
+                      } else if (Platform.isIOS) {
+                        IosDeviceInfo iosDeviceInfo = await deviceInfo.iosInfo;
+                        deviceName = iosDeviceInfo.name ??
+                            ("${emailController.text.split('@')[0]}'s Iphone");
+                      }
+                      print(deviceName);
                       http.Response response = await http.post(
                           Uri.parse("https://app.incphone.com/sanctum/token"),
                           body: {
                             'email': emailController.text,
-                            'device_name': "DarthSid12's device",
+                            'device_name': deviceName,
                             "password": passwordController.text
                           });
                       if (response.statusCode == 200) {

@@ -37,6 +37,7 @@ class _MainScreenState extends State<MainScreen> {
         // onPageStarted: (url) => print(url),
         javascriptMode: JavascriptMode.unrestricted,
         onWebViewCreated: (controller) {
+          print(widget.authToken);
           controller.loadUrl("https://app.incphone.com/dashboard",
               headers: {'Authorization': "Bearer ${widget.authToken}"});
           _webViewController = controller;
